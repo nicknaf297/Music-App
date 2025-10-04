@@ -1,3 +1,1 @@
-1. Ikut ChatGPT
-1. Add 'home.html' dekat app/templates/app/
- +601156309196
+A music sharing app that was created for Software Engineering Fundamentals Course
