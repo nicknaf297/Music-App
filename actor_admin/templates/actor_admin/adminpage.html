@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Requests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #dcc5b3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        a {
+            text-decoration: none;
+        }
+        .container {
+            background: #c19a77;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 500px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .requests-box {
+            background: #a77c55;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .request {
+            background: #4a3322;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-size: 18px;
+        }
+        .button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 10px auto;
+            background-color: #4A3528;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .song-info img {
+            width: 100px;
+            height: 100px;
+            border-radius: 5px;
+            flex-shrink: 0; /* Prevents image from affecting text alignment */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome Admin!</h1>
+        <div class="song-list">
+            {% for song in pending_songs %}
+            <a href = "{% url 'song_request' song.song_ID %}"><div class="request"> Request by {{ song.artist_Name }}</div></a>
+            {% empty %}
+            <p>No pending songs.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Log Out Link -->
+        <form id="logoutForm" action="/logout" method="post" class="navbar-right">
+            {% csrf_token %}
+            <a href="javascript:document.getElementById('logoutForm').submit()"><button class="button">Log Out</button></a>
+        </form>
+    </div>
+
+    <script>
+        function toggleDetails(songBox)
+        {
+            songBox.classList.toggle('expanded');
+
+            const details = songBox.querySelector('.song-details');
+            details.classList.toggle('expanded');
+        }
+        </script>
+</body>
+</html>

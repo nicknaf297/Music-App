@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d4b7a3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #c8a897;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 500px;
+        }
+
+        .song-cover {
+            width: 200px;
+            height: 200px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .song-title {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .song-artist {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background-color: #4c362a;
+            height: 8px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+
+        .progress {
+            background-color: #ddd2e8;
+            height: 100%;
+            width: 20%;
+            border-radius: 4px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .control-button {
+            background-color: #4c362a;
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            width: 50px;
+            height: 50px;
+        }
+
+        .icon-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            color: #4c362a;
+        }
+
+        .liked {
+    background-color: #ff4d4d !important; /* Red for liked */
+        }
+
+        .pinned {
+    background-color: #ffc107 !important; /* Yellow for pinned */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Fetch cover image dynamically -->
+        <img src="{{ song.cover_image.url }}" alt="Song Cover" class="song-cover">
+
+        <!-- Fetch song title dynamically -->
+        <div class="song-title">{{ song.song_name }}</div>
+
+        <!-- Fetch artist name dynamically -->
+        <div class="song-artist">by {{ song.artist_Name }}</div>
+
+        <audio id="audio-player" src="{{song.music_File.url}}"></audio>
+
+        <div class="progress-bar">
+            <div id="progress" class="progress" style="width: 0%"></div>
+        </div>
+
+        <div class="controls">
+            <div class="icon-text">
+                <button class="control-button" id="play-pause">&#9654;</button>
+                <span>Play</span>
+            </div>         
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let audioPlayer = document.getElementById("audio-player");
+            let playPauseBtn = document.getElementById("play-pause");
+            let progressBar = document.getElementById("progress");
+            let downloadBtn = document.getElementById("download-btn");
+            let likeBtn = document.getElementById("like-btn");
+            let pinBtn = document.getElementById("pin-btn");
+            let likeCountSpan = document.getElementById("like-count");
+            let pinCountSpan = document.getElementById("pin-count");
+
+            let songID = "{{ song.song_ID }}";  // Fetch song ID dynamically
+
+            // Toggle Play and Pause
+            playPauseBtn.addEventListener("click", function () {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    playPauseBtn.innerHTML = "❚❚";  // Change to pause icon
+                } else {
+                    audioPlayer.pause();
+                    playPauseBtn.innerHTML = "▶";  // Change back to play icon
+                }
+            });
+
+            // Update Progress Bar
+            audioPlayer.addEventListener("timeupdate", function () {
+                let progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.style.width = progress + "%";
+            });
+
+            // Reset Button to Play Icon When Song Ends
+            audioPlayer.addEventListener("ended", function () {
+                playPauseBtn.innerHTML = "▶";
+                progressBar.style.width = "0%";  // Reset progress bar
+            });
+            if (downloadBtn) {
+                downloadBtn.addEventListener("click", function () {
+                const link = document.createElement("a");
+                link.href = audioPlayer.src; // Get the song file URL
+                link.download = "song.mp3"; // Default file name
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+           }
+           
+           // ✅ Function to get CSRF token from cookies
+           function getCSRFToken() {
+    let csrfToken = null;
+    document.cookie.split(";").forEach(cookie => {
+        let [name, value] = cookie.trim().split("=");
+        if (name === "csrftoken") {
+            csrfToken = value;
+        }
+    });
+    return csrfToken;
+}
+
+
+function getCSRFToken() {
+        return document.cookie.split("; ")
+            .find(row => row.startsWith("csrftoken="))
+            ?.split("=")[1];
+    }
+
+    function updateSongInteraction(type, button, countSpan, activeClass, defaultText) {
+    fetch(`/song/${songID}/update/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ action: type })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            if (type === "like") {
+                button.classList.toggle(activeClass); // Toggle class
+                countSpan.textContent = `${data.likes} likes`; // Update like count
+            } else if (type === "pin") {
+                button.classList.toggle(activeClass); // Toggle class
+                countSpan.textContent = button.classList.contains(activeClass) ? "Pinned" : defaultText;
+            }
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+
+// ✅ Add event listeners for Like and Pin
+if (likeBtn) {
+    likeBtn.addEventListener("click", function () {
+        updateSongInteraction("like", likeBtn, likeCountSpan, "liked", "like");
+    });
+}
+
+if (pinBtn) {
+    pinBtn.addEventListener("click", function () {
+        updateSongInteraction("pin", pinBtn, pinCountSpan, "pinned", "pin");
+    });
+    
+}
+
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d8bfa5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0 20px;
+            width: 100%;
+        }
+        .search-input {
+            width: 92%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #5a3a2c;
+            border-radius: 5px;
+            background-color: #e5dcd1;
+        }
+        .search-button {
+            background-color: #5a3a2c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .results-container {
+            width: 97%;
+            background-color: #e5cbb2;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .result {
+            background-color: #4d3629;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .result img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+        .result-text {
+            font-size: 18px;
+        }
+        .result-subtext {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if user.roles == 'Listener' %}
+            <div class="search-container">
+                <a href="{% url 'listener_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% elif user.roles == 'Artist' %}
+            <div class="search-container">
+                <a href="{% url 'artist_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="results-container">
+            {% if search %}
+                {% if user.roles == 'Listener' %}
+                <h2>Search Results...</h2>
+                    {% for song in songs %}
+                        <a href = "{% url 'song_detail' song.song_ID %}">
+                            <div class="result">
+                                <img src="{{ song.cover_image.url }}" alt="Song">
+                                <div>
+                                    <div class="result-text">{{ song.song_name }}</div>
+                                    <div class="result-subtext">Song | {{ song.artist_Name }}</div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                    {% for user in users %}
+                        {% if user.roles == 'Listener' %}
+                        <a href="{% url 'search_listener_page' user.username %}">
+                            <div class="result">
+                                <img src="{{ user.profile_pic.url }}" alt="Song">
+                                <div>
+                                    <div class="result-text">{{ user.username }}</div>
+                                    <div class="result-subtext">{{ user.roles }}</div>
+                                </div>
+                            </div>
+                        </a>
+                        {% elif user.roles == 'Artist' %}
+                        <a href="{% url 'search_artist_page' user.username %}">
+                            <div class="result">
+                                <img src="{{ user.profile_pic.url }}" alt="Song">
+                                <div>
+                                    <div class="result-text">{{ user.username }}</div>
+                                    <div class="result-subtext">{{ user.roles }}</div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    {% else %}
+                        <h2>Search Results...</h2>
+                        {% for song in songs %}
+                            <a href = "{% url 'song_artist_page' song.song_ID %}">
+                                <div class="result">
+                                    <img src="{{ song.cover_image.url }}" alt="Song">
+                                    <div>
+                                        <div class="result-text">{{ song.song_name }}</div>
+                                        <div class="result-subtext">Song | {{ song.artist_Name }}</div>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                        {% for user in users %}
+                            {% if user.roles == 'Listener' %}
+                            <a href="{% url 'search_listener_page' user.username %}">
+                                <div class="result">
+                                    <img src="{{ user.profile_pic.url }}" alt="Song">
+                                    <div>
+                                        <div class="result-text">{{ user.username }}</div>
+                                        <div class="result-subtext">{{ user.roles }}</div>
+                                    </div>
+                                </div>
+                            </a>
+                            {% elif user.roles == 'Artist' %}
+                            <a href="{% url 'search_artist_page' user.username %}">
+                                <div class="result">
+                                    <img src="{{ user.profile_pic.url }}" alt="Song">
+                                    <div>
+                                        <div class="result-text">{{ user.username }}</div>
+                                        <div class="result-subtext">{{ user.roles }}</div>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

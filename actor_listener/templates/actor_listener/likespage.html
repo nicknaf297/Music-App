@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liked Songs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5e8df;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0 20px;
+            width: 100%;
+        }
+        .search-input {
+            width: 92%; /* Increased width */
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #5a3a2c;
+            border-radius: 5px;
+            background-color: #e5dcd1;
+        }
+        .search-button {
+            background-color: #5a3a2c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            margin-left: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .request-button {
+            background-color: #5a3a2c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            margin-left: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .profile-container {
+            background-color: #a67c60;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+        }
+        .profile-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+        }
+        .profile-text h2, .profile-text h3 {
+            margin: 0;
+        }
+        .songs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .song {
+            background-color: #4c362a;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 500px;
+            max-width: 100%;
+            text-align: left;
+        }
+        .song img {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            flex-shrink: 0;
+        }
+        .song-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        .song-info p {
+            margin: 3px 0;
+        }
+        .status-box {
+            background-color: white;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: right;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if user.roles == 'Listener' %}
+            <div class="search-container">
+                <a href="{% url 'listener_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% elif user.roles == 'Artist' %}
+            <div class="search-container">
+                <a href="{% url 'artist_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="profile-container">
+            <div class="profile-info">
+                <img src="{{ searchUser.profile_pic.url }}" alt="Profile Picture">
+                <div class="profile-text">
+                    <h2>{{ searchUser.username }}</h2>
+                    <h3>Liked Songs</h3>
+                </div>
+            </div>
+        </div>
+        <div class="songs">
+            {% if user.roles == 'Listener' %}
+                {% for song in liked_songs %}  
+                <a href="{% url 'song_detail' song.song_ID %}">
+                    <div class="song">
+                        <img src="{{ song.cover_image.url }}" alt="Song Cover">
+                        <div class="song-info">
+                            <p>{{ song.song_name }}</p>
+                            <p>By {{ song.artist_Name }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                {% for song in liked_songs %}  
+                <a href="{% url 'song_artist_page' song.song_ID %}">
+                    <div class="song">
+                        <img src="{{ song.cover_image.url }}" alt="Song Cover">
+                        <div class="song-info">
+                            <p>{{ song.song_name }}</p>
+                            <p>By {{ song.artist_Name }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

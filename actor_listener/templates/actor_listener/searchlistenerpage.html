@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Sharing App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0 20px;
+            width: 100%;
+        }
+        .search-input {
+            width: 92%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #5a3a2c;
+            border-radius: 5px;
+            background-color: #e5dcd1;
+        }
+        .search-button {
+            background-color: #5a3a2c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            margin-left: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .profile-container {
+            background-color: #d8c1b0;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .profile-container img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-container h2 {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 10px auto;
+            background-color: #4A3528;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .songs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .song {
+            background-color: #4c362a;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 250px;
+            max-width: 100%;
+            text-align: left;
+        }
+        .song img {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            flex-shrink: 0;
+        }
+        .song-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        .song-info p {
+            margin: 3px 0;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if user.roles == 'Listener' %}
+            <div class="search-container">
+                <a href="{% url 'listener_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% elif user.roles == 'Artist' %}
+            <div class="search-container">
+                <a href="{% url 'artist_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="profile-container">
+            <h2>{{ searchedUser.username }}'s Profile</h2>
+            <img src="{{ searchedUser.profile_pic.url }}" alt="Profile Picture">
+            <a href="{% url 'liked_song_page' searchedUser.username %}"><button class="button">Liked Songs</button></a>
+            <h3>Pinned Songs</h3>
+            {% for song in pinned_songs %}
+                {% if user.roles == 'Listener' %}
+                    <a href="{% url 'song_detail' song.song_ID %}">
+                        <div class="song">
+                            <img src="{{ song.cover_image.url }}" alt="Song Cover">
+                            <div class="song-info">
+                                <p>{{ song.song_name }}</p>
+                                <p>By {{ song.artist_Name }}</p>
+                            </div>
+                        </div>
+                    </a>
+                {% elif user.roles == 'Artist' %}
+                    <a href="{% url 'song_artist_page' song.song_ID %}">
+                        <div class="song">
+                            <img src="{{ song.cover_image.url }}" alt="Song Cover">
+                            <div class="song-info">
+                                <p>{{ song.song_name }}</p>
+                                <p>By {{ song.artist_Name }}</p>
+                            </div>
+                        </div>
+                    </a>
+                {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

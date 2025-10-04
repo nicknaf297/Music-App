@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E6C7B4;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            background: #B58B68;
+            padding: 20px;
+            border-radius: 10px;
+            width: 800px;
+        }
+        .left-panel {
+            width: 40%;
+            padding: 20px;
+        }
+        .right-panel {
+            width: 60%;
+            padding: 20px;
+            background: #E6C7B4;
+            border-radius: 10px;
+        }
+        .song-cover {
+            width: 100%;
+            border-radius: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn-dark { background: #4A2E1F; color: white; }
+        .btn-red { background: #FF6B6B; color: white; }
+        input {
+            width: 93.5%;
+            padding: 8px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .audio-player {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 5px;
+            background: #EEE;
+            margin: 0 10px;
+            border-radius: 5px;
+        }
+        .play-button {
+            background: #4A2E1F;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .song-title {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .artist-name {
+            text-align: center;
+            margin-top: 40px;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <form id="song-form" method="POST" action="{% url 'create_song' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="container">
+        <div class="left-panel">
+            <img id="preview-image" src={{song.cover_image.url}} alt="Song Cover" class="song-cover">
+            <!-- Hidden File Input -->
+            <input type="file" id="image-upload" name="cover_image" accept="songPictures/*" hidden>
+            <button class="btn-dark" type="button" id="change-photo-btn">Change Photo</button>
+            <button class="btn-dark" type= "submit"> Make request</button>
+            </form>
+            {% if form.errors %}
+            <div style="color: red; font-weight: bold;">
+                <p>Errors:</p>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        <li><strong>{{ field }}</strong>: {{ errors|join:", " }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+        </div>
+        <div class="right-panel">
+            <input type="text" name="song_name" placeholder="Song Title" required>
+            <input type="text" name="artist_Name" value="by {{request.user.username}}" readonly>
+            <p>Song File: <span id="file-name">musicFile.mp3</span></p>
+            <input type="file" id="music-file" name="music_File" accept=".mp3" hidden>
+            <button class="btn-dark"type="button" id="change-song-btn">Change Song File</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById("change-song-btn").addEventListener("click", function () {
+            document.getElementById("music-file").click();
+        });
+
+        document.getElementById("music-file").addEventListener("change", function () {
+            var fileName = this.files[0] ? this.files[0].name : "No file chosen";
+            document.getElementById("file-name").textContent = fileName;
+        });
+    </script>
+    <script>
+        document.getElementById("change-photo-btn").addEventListener("click", function () {
+            document.getElementById("image-upload").click();  // Opens file picker
+        });
+
+        document.getElementById("image-upload").addEventListener("change", function (event) {
+            var file = event.target.files[0];  // Get selected file
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("preview-image").src = e.target.result;  // Update image preview
+                };
+                reader.readAsDataURL(file);  // Convert file to Base64 for preview
+            }
+        });
+    </script>
+</body>
+</html>

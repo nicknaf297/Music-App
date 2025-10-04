@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Sharing App</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #FFFFFF;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .box {
+            background-color: #D6C2B6;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 10px auto;
+            background-color: #4A3528;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Music Sharing App</div>
+        <div class="box">
+            <a href="{% url 'login' %}"><button class="button">Login</button></a>
+            <a href="{% url 'register' %}"><button class="button">Register</button></a>
+        </div>
+    </div>
+</body>
+</html>

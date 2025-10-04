@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Request Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #dcc6b0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #c09a74;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .request-box {
+            background-color: #a67b52;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .request-box img {
+            width: 100px;
+            height: 100px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .song-info {
+            display: flex;
+            align-items: center;
+        }
+        .song-details {
+            text-align: left;
+        }
+        .progress-bar {
+            height: 5px;
+            background-color: #dcc6b0;
+            margin-top: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress {
+            width: 30%;
+            height: 100%;
+            background-color: #5a3d2b;
+        }
+        .controls {
+            margin-top: 15px;
+        }
+        .play-button {
+            background-color: #5a3d2b;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .accept, .decline {
+            width: 48%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+        .btn-dark { background: #4A2E1F; color: white; margin: 5px;}
+        .btn-red { background: #FF6B6B; color: white; }
+        .approve-button {
+            background-color: #5a3d2b;
+        }
+        .decline {
+            background-color: #ff5c5c;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .control-button {
+            background-color: #4c362a;
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Request Successful!</h2>
+        <div class="request-box">
+            <div class="buttons">
+                <a href="{% url 'create_song' %}"><button class="btn-dark" type="submit">Request More Songs</button></a>
+                <a href="{% url 'song_management' %}"><button class="btn-dark" type="submit">Back to Song Management</button></a>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let audioPlayer = document.getElementById("audio-player");
+            let playPauseBtn = document.getElementById("play-pause");
+            let progressBar = document.getElementById("progress");
+            let downloadBtn = document.getElementById("download-btn");
+            let likeBtn = document.getElementById("like-btn");
+            let pinBtn = document.getElementById("pin-btn");
+            let likeCountSpan = document.getElementById("like-count");
+            let pinCountSpan = document.getElementById("pin-count");
+
+            let likeCount = 0; // Start with 0 likes
+            let isLiked = false;
+            let isPinned = false;
+
+            // Toggle Play and Pause
+            playPauseBtn.addEventListener("click", function () {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    playPauseBtn.innerHTML = "❚❚";  // Change to pause icon
+                } else {
+                    audioPlayer.pause();
+                    playPauseBtn.innerHTML = "▶";  // Change back to play icon
+                }
+            });
+
+            // Update Progress Bar
+            audioPlayer.addEventListener("timeupdate", function () {
+                let progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.style.width = progress + "%";
+            });
+
+            // Reset Button to Play Icon When Song Ends
+            audioPlayer.addEventListener("ended", function () {
+                playPauseBtn.innerHTML = "▶";
+                progressBar.style.width = "0%";  // Reset progress bar
+            });
+            if (downloadBtn) {
+                downloadBtn.addEventListener("click", function () {
+                const link = document.createElement("a");
+                link.href = audioPlayer.src; // Get the song file URL
+                link.download = "song.mp3"; // Default file name
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+           }
+        });
+    </script>
+</body>
+</html>

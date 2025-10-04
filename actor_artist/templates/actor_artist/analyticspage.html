@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5e8df;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0 20px;
+            width: 100%;
+        }
+        .search-input {
+            width: 92%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #5a3a2c;
+            border-radius: 5px;
+            background-color: #e5dcd1;
+        }
+        .search-button {
+            background-color: #5a3a2c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            margin-left: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .analytics-container {
+            background-color: #c7a58a;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .top-section {
+            display: flex;
+            justify-content: start; /* Aligns content to the left */
+            align-items: center;
+            gap: 20px; /* Reduce spacing */
+        }
+        .most-liked-song {
+            background-color: #4c362a;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            width: 55%;
+        }
+        .most-liked-song img {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+        .most-liked-song, .song-box div {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start; /* Aligns text to the left */
+            text-align: left;
+            gap: 2px; /* Reduces space between song name and artist */
+        }
+
+        .most-liked-song p, .song-box p {
+            margin: 0; /* Removes default margins */
+            padding: 0;
+            line-height: 1.2;
+        }
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 40%;
+        }
+
+        .stat-box {
+            background-color: #4c362a;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center; /* Centers text vertically */
+            justify-content: center; /* Centers text horizontally */
+            text-align: center; /* Keeps numbers centered */
+        }
+
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .song-box {
+            background-color: #4c362a;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .song-box img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .song-box div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            gap: 2px; /* Reduce space between song name and artist */
+        }
+        .song-box p {
+            margin: 0; /* Remove default paragraph margins */
+            padding: 0; /* Ensure no extra spacing */
+            line-height: 1.2; /* Adjust line spacing */
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if user.roles == 'Listener' %}
+            <div class="search-container">
+                <a href="{% url 'listener_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% elif user.roles == 'Artist' %}
+            <div class="search-container">
+                <a href="{% url 'artist_page' %}"><button class="search-button">My Profile</button></a>
+                <form method="post" action="{% url 'search' %}" style="width: 100%;">
+                    {% csrf_token %}
+                    <input type="text" class="search-input" placeholder="Search..." name="search">
+                    <button class="search-button">Search</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="analytics-container">
+            <h2><strong>{{ user.username }}’s Analytic Page</strong></h2>
+            <div class="top-section">
+                <div class="most-liked-song">
+                    {% if most_liked_song %}
+                    <img src= "{{ most_liked_song.cover_image.url }}" alt="Song Cover">
+                    <div>
+                        <p><strong>{{ most_liked_song.song_name }}</strong></p>
+                        <p>By {{ most_liked_song.artist_Name }}</p>
+                        <p>❤️ {{ most_liked_song.numOfLikes }}</p>
+                    </div>
+                    {% else %}
+                    <p>No song available.</p>
+                    {% endif %}
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">❤️ You have total of {{ total_likes }}</div>
+                    <div class="stat-box">📌 You have total of {{ total_pins }}</div>
+                </div>
+            </div>
+            <h3>See your other songs:</h3>
+            <div class="song-grid">
+                {% for song in song_list %}
+                <a href="{% url 'song_analytic' song.song_ID %}">
+                    <div class="song-box" onclick="window.location.href='song_page.html'">
+                        <img src="{{ song.cover_image.url }}" alt="Song Cover">
+                        <div>
+                            <p><strong>{{ song.song_name }}</strong></p>
+                            <p>By {{ song.artist_Name }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
